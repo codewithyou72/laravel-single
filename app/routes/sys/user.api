@@ -1,0 +1,172 @@
+syntax = "v1"
+
+info(
+	title: "用户"
+	desc: "用户"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+import "../common.api"
+
+type (
+	UserProfession {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	UserJob {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	UserDept {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	UserRole {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	User {
+		Id         int64          `json:"id"`
+		Account    string         `json:"account"`
+		Username   string         `json:"username"`
+		Nickname   string         `json:"nickname"`
+		Gender     int64          `json:"gender"`
+		Email      string         `json:"email"`
+		Mobile     string         `json:"mobile"`
+		Profession UserProfession `json:"profession"`
+		Job        UserJob        `json:"job"`
+		Dept       UserDept       `json:"dept"`
+		Roles      []UserRole     `json:"roles"`
+		Status     int64          `json:"status"`
+		OrderNum   int64          `json:"orderNum"`
+		Remark     string         `json:"remark"`
+	}
+	SysUserPageReq {
+		PageReq
+		DeptId int64 `form:"deptId"  validate:"number,gte=0" label:"部门id"`
+	}
+	SysUserPageResp {
+		List   []User     `json:"list"`
+		Pagination Pagination `json:"pagination"`
+	}
+)
+
+type (
+	AddSysUserReq {
+		Account      string   `json:"account"       validate:"min=4,max=50"            label:"账号"`
+		Username     string   `json:"username"      validate:"min=2,max=50"            label:"姓名"`
+		Nickname     string   `json:"nickname"      validate:"omitempty,min=2,max=50"  label:"昵称"`
+		Gender       int64    `json:"gender"        validate:"number,gte=0,lte=2"      label:"性别"`
+		Email        string   `json:"email"         validate:"omitempty,email"         label:"邮箱"`
+		Mobile       string   `json:"mobile"        validate:"omitempty,min=11"        label:"手机号"`
+		ProfessionId int64    `json:"professionId"  validate:"number,gte=1"            label:"职称id"`
+		JobId        int64    `json:"jobId"         validate:"number,gte=1"            label:"岗位id"`
+		DeptId       int64    `json:"deptId"        validate:"number,gte=1"            label:"部门id"`
+		RoleIds      []int64  `json:"roleIds"       validate:"unique"                  label:"角色ids"`
+		Status       int64    `json:"status"        validate:"number,gte=0,lte=1"      label:"状态"`
+		OrderNum     int64    `json:"orderNum"      validate:"number,gte=0,lte=9999"   label:"排序"`
+		Remark       string   `json:"remark"        validate:"max=200"                 label:"备注"`
+	}
+)
+
+type (
+	DeleteSysUserReq {
+		Id int64 `json:"id"  validate:"number,gte=2" label:"用户id"`
+	}
+)
+
+type (
+	UpdateSysUserReq {
+		Id           int64    `json:"id"            validate:"number,gte=2"            label:"用户id"`
+		Username     string   `json:"username"      validate:"min=2,max=50"            label:"姓名"`
+		Nickname     string   `json:"nickname"      validate:"omitempty,min=2,max=50"  label:"昵称"`
+		Gender       int64    `json:"gender"        validate:"number,gte=0,lte=2"      label:"性别"`
+		Email        string   `json:"email"         validate:"omitempty,email"         label:"邮箱"`
+		Mobile       string   `json:"mobile"        validate:"omitempty,min=11"        label:"手机号"`
+		ProfessionId int64    `json:"professionId"  validate:"number,gte=1"            label:"职称id"`
+		JobId        int64    `json:"jobId"         validate:"number,gte=1"            label:"岗位id"`
+		DeptId       int64    `json:"deptId"        validate:"number,gte=1"            label:"部门id"`
+		RoleIds      []int64  `json:"roleIds"       validate:"unique"                  label:"角色ids"`
+		Status       int64    `json:"status"        validate:"number,gte=0,lte=1"      label:"状态"`
+		OrderNum     int64    `json:"orderNum"      validate:"number,gte=0,lte=9999"   label:"排序"`
+		Remark       string   `json:"remark"        validate:"max=200"                 label:"备注"`
+	}
+)
+
+type (
+	UpdateSysUserPasswordReq {
+		Id       int64  `json:"id"        validate:"number,gte=2"  label:"用户id"`
+		Password string `json:"password"  validate:"min=6,max=12"  label:"密码"`
+	}
+)
+
+type (
+	GetSysUserRdpjInfoReq {
+		UserId int64 `form:"userId"  validate:"number,gte=0"  label:"用户id"`
+	}
+	Rdpj {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
+	DeptTree {
+		Id       int64  `json:"id"`
+		ParentId int64  `json:"parentId"`
+		Name     string `json:"name"`
+	}
+	RoleTree {
+		Id       int64  `json:"id"`
+		ParentId int64  `json:"parentId"`
+		Name     string `json:"name"`
+	}
+	GetSysUserRdpjInfoResp {
+		Role       []RoleTree `json:"role"`
+		Dept       []DeptTree `json:"dept"`
+		Profession []Rdpj     `json:"profession"`
+		Job        []Rdpj     `json:"job"`
+	}
+)
+
+@server(
+	jwt: JwtAuth
+	group : sys/user
+	prefix : /admin/sys/user
+	middleware: PermMenuAuth
+)
+service index {
+	@doc(
+		summary: "分页用户"
+	)
+	@handler GetSysUserPage
+	get /page (SysUserPageReq) returns (SysUserPageResp)
+
+	@doc(
+		summary: "新增用户"
+	)
+	@handler AddSysUser
+	post /add (AddSysUserReq)
+
+	@doc(
+		summary: "删除用户"
+	)
+	@handler DeleteSysUser
+	post /delete (DeleteSysUserReq)
+
+	@doc(
+		summary: "更新用户"
+	)
+	@handler UpdateSysUser
+	post /update (UpdateSysUserReq)
+
+	@doc(
+		summary: "更新用户密码"
+	)
+	@handler UpdateSysUserPassword
+	post /password/update (UpdateSysUserPasswordReq)
+
+	@doc(
+		summary: "角色部门职称岗位信息"
+	)
+	@handler GetSysUserRdpjInfo
+	get /rdpj/info (GetSysUserRdpjInfoReq) returns (GetSysUserRdpjInfoResp)
+}

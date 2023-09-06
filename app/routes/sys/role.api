@@ -1,0 +1,88 @@
+syntax = "v1"
+
+info(
+	title: "角色"
+	desc: "角色"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+
+type (
+	Role {
+		Id          int64    `json:"id"`
+		ParentId    int64    `json:"parentId"`
+		Name        string   `json:"name"`
+		UniqueKey   string   `json:"uniqueKey"`
+		PermMenuIds []int64  `json:"permMenuIds"`
+		Remark      string   `json:"remark"`
+		Status      int64    `json:"status"`
+		OrderNum    int64    `json:"orderNum"`
+	}
+	SysRoleListResp {
+		List []Role `json:"list"`
+	}
+)
+
+type (
+	AddSysRoleReq {
+		ParentId    int64    `json:"parentId"     validate:"number,gte=0"          label:"父级角色id"`
+		Name        string   `json:"name"         validate:"min=2,max=50"          label:"角色名称"`
+		UniqueKey   string   `json:"uniqueKey"    validate:"min=2,max=50"          label:"角色标识"`
+		PermMenuIds []int64  `json:"permMenuIds"  validate:"omitempty,unique"      label:"权限ids"`
+		Remark      string   `json:"remark"       validate:"max=200"               label:"备注"`
+		Status      int64    `json:"status"       validate:"number,gte=0,lte=1"    label:"状态"`
+		OrderNum    int64    `json:"orderNum"     validate:"number,gte=0,lte=9999" label:"排序"`
+	}
+)
+
+type (
+	DeleteSysRoleReq {
+		Id int64 `json:"id"  validate:"number,gte=2" label:"角色id"`
+	}
+)
+
+type (
+	UpdateSysRoleReq {
+		Id          int64    `json:"id"           validate:"number,gte=1"           label:"角色id"`
+		ParentId    int64    `json:"parentId"     validate:"number,gte=0"           label:"父级角色id"`
+		Name        string   `json:"name"         validate:"min=2,max=50"           label:"角色名称"`
+		UniqueKey   string   `json:"uniqueKey"    validate:"min=2,max=50"           label:"角色标识"`
+		PermMenuIds []int64  `json:"permMenuIds"  validate:"omitempty,unique"       label:"权限ids"`
+		Remark      string   `json:"remark"       validate:"max=200"                label:"备注"`
+		Status      int64    `json:"status"       validate:"number,gte=0,lte=1"     label:"状态"`
+		OrderNum    int64    `json:"orderNum"     validate:"number,gte=0,lte=9999"  label:"排序"`
+	}
+)
+
+@server(
+	jwt: JwtAuth
+	group : sys/role
+	prefix : /admin/sys/role
+	middleware: PermMenuAuth
+)
+service index {
+	@doc(
+		summary: "角色列表"
+	)
+	@handler GetSysRoleList
+	get /list returns (SysRoleListResp)
+
+	@doc(
+		summary: "新增角色"
+	)
+	@handler AddSysRole
+	post /add (AddSysRoleReq)
+
+	@doc(
+		summary: "删除角色"
+	)
+	@handler DeleteSysRole
+	post /delete (DeleteSysRoleReq)
+
+	@doc(
+		summary: "更新角色"
+	)
+	@handler UpdateSysRole
+	post /update (UpdateSysRoleReq)
+}

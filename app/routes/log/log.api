@@ -1,0 +1,42 @@
+syntax = "v1"
+
+info(
+	title: "日志"
+	desc: "日志"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+import "../common.api"
+
+type (
+	LogLogin {
+		Id         int64  `json:"id"`
+		Account    string `json:"account"`
+		Ip         string `json:"ip"`
+		Uri        string `json:"uri"`
+		Status     int64  `json:"status"`
+		CreateTime string `json:"createTime"`
+	}
+	LogLoginPageReq {
+		PageReq
+	}
+	LogLoginPageResp {
+		List        []LogLogin `json:"list"`
+		Pagination  Pagination `json:"pagination"`
+	}
+)
+
+@server(
+	jwt: JwtAuth
+	group : log/login
+	prefix : /admin/log/login
+	middleware: PermMenuAuth
+)
+service index {
+	@doc(
+		summary: "分页日志"
+	)
+	@handler GetLogLoginPage
+	get /page (LogLoginPageReq) returns (LogLoginPageResp)
+}

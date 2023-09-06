@@ -1,0 +1,81 @@
+syntax = "v1"
+
+info(
+	title: "职称"
+	desc: "职称"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+import "../common.api"
+
+type (
+	Profession {
+		Id       int64  `json:"id"`
+		Name     string `json:"name"`
+		Status   int64  `json:"status"`
+		OrderNum int64  `json:"orderNum"`
+	}
+	SysProfessionPageReq {
+		PageReq
+	}
+	SysProfessionPageResp {
+		List        []Profession `json:"list"`
+		Pagination  Pagination   `json:"pagination"`
+	}
+)
+
+type (
+	AddSysProfessionReq {
+		Name     string `json:"name"      validate:"min=2,max=50"           label:"职称"`
+		Status   int64  `json:"status"    validate:"number,gte=0,lte=1"     label:"状态"`
+		OrderNum int64  `json:"orderNum"  validate:"number,gte=0,lte=9999"  label:"排序"`
+	}
+)
+
+type (
+	DeleteSysProfessionReq {
+		Id int64 `json:"id"  validate:"number,gte=1" label:"职称id"`
+	}
+)
+
+type (
+	UpdateSysProfessionReq {
+		Id       int64  `json:"id"        validate:"number,gte=1"           label:"职称id"`
+		Name     string `json:"name"      validate:"min=2,max=50"           label:"职称"`
+		Status   int64  `json:"status"    validate:"number,gte=0,lte=1"     label:"状态"`
+		OrderNum int64  `json:"orderNum"  validate:"number,gte=0,lte=9999"  label:"排序"`
+	}
+)
+
+@server(
+	jwt: JwtAuth
+	group : sys/profession
+	prefix : /admin/sys/profession
+	middleware: PermMenuAuth
+)
+service index {
+	@doc(
+		summary: "分页职称"
+	)
+	@handler GetSysProfessionPage
+	get /page (SysProfessionPageReq) returns (SysProfessionPageResp)
+
+	@doc(
+		summary: "新增职称"
+	)
+	@handler AddSysProfession
+	post /add (AddSysProfessionReq)
+
+	@doc(
+		summary: "删除职称"
+	)
+	@handler DeleteSysProfession
+	post /delete (DeleteSysProfessionReq)
+
+	@doc(
+		summary: "更新职称"
+	)
+	@handler UpdateSysProfession
+	post /update (UpdateSysProfessionReq)
+}

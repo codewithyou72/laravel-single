@@ -1,0 +1,156 @@
+syntax = "v1"
+
+info(
+	title: "个人中心"
+	desc: "个人中心"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+type (
+	LoginReq {
+		CaptchaId  string `json:"captchaId"   label:"验证码id"`
+		VerifyCode string `json:"verifyCode"  label:"验证码"`
+		Account    string `json:"account"     label:"账号"`
+		Password   string `json:"password"    label:"密码"`
+	}
+	LoginResp {
+		Token string `json:"token"`
+	}
+)
+
+type (
+	UserInfoResp {
+		Username string `json:"username"`
+		Avatar   string `json:"avatar"`
+	}
+)
+
+type (
+	UserProfileInfoResp {
+		Username string `json:"username"`
+		Nickname string `json:"nickname"`
+		Gender   int64  `json:"gender"`
+		Email    string `json:"email"`
+		Mobile   string `json:"mobile"`
+		Remark   string `json:"remark"`
+		Avatar   string `json:"avatar"`
+	}
+)
+
+type (
+	UpdateProfileReq {
+		Username string `json:"username"  validate:"required,min=2,max=12"   label:"姓名"`
+		Nickname string `json:"nickname"  validate:"omitempty,min=2,max=12"  label:"昵称"`
+		Gender   int64  `json:"gender"    validate:"gte=0,lte=2"             label:"性别"`
+		Email    string `json:"email"     validate:"omitempty,email"         label:"邮箱"`
+		Mobile   string `json:"mobile"    validate:"omitempty,len=11"        label:"手机号"`
+		Avatar   string `json:"avatar"    validate:"required,url"            label:"头像"`
+	}
+)
+
+type (
+	Menu {
+		Id           int64  `json:"id"`
+		ParentId     int64  `json:"parentId"`
+		Name         string `json:"name"`
+		Router       string `json:"router"`
+		Type         int64  `json:"type"`
+		Icon         string `json:"icon"`
+		OrderNum     int64  `json:"orderNum"`
+		ViewPath     string `json:"viewPath"`
+		IsShow       int64  `json:"isShow"`
+		ActiveRouter string `json:"activeRouter"`
+	}
+	UserPermMenuResp {
+		Menus []Menu   `json:"menus"`
+		Perms []string `json:"perms"`
+	}
+)
+
+type (
+	UpdatePasswordReq {
+		OldPassword string `json:"oldPassword"  validate:"min=6,max=12"  label:"旧密码"`
+		NewPassword string `json:"newPassword"  validate:"min=6,max=12"  label:"新密码"`
+	}
+)
+
+type (
+	LoginCaptchaResp {
+		CaptchaId  string `json:"captchaId"`
+		VerifyCode string `json:"verifyCode"`
+	}
+)
+
+type (
+	GenerateAvatarResp {
+		AvatarUrl string `json:"avatarUrl"`
+	}
+)
+
+@server(
+	group : user
+	prefix : /admin/user
+)
+service index {
+	@doc(
+		summary: "登录"
+	)
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+
+	@doc(
+		summary: "登录验证码"
+	)
+	@handler GetLoginCaptcha
+	get /login/captcha returns (LoginCaptchaResp)
+
+	@doc(
+		summary: "退出"
+	)
+	@handler Logout
+	post /logout
+}
+
+@server(
+	jwt: JwtAuth
+	group : user
+	prefix : /admin/user
+)
+service index {
+	@doc(
+		summary: "登录信息"
+	)
+	@handler GetUserInfo
+	get /info returns (UserInfoResp)
+
+	@doc(
+		summary: "权限菜单"
+	)
+	@handler GetUserPermMenu
+	get /permmenu returns (UserPermMenuResp)
+
+	@doc(
+		summary: "用户资料"
+	)
+	@handler GetUserProfileInfo
+	get /profile/info returns (UserProfileInfoResp)
+
+	@doc(
+		summary: "更新用户资料"
+	)
+	@handler UpdateUserProfile
+	post /profile/update (UpdateProfileReq)
+
+	@doc(
+		summary: "更新密码"
+	)
+	@handler UpdateUserPassword
+	post /password/update (UpdatePasswordReq)
+
+	@doc(
+		summary: "生成头像"
+	)
+	@handler GetGenerateAvatar
+	get /avatar/generate returns (GenerateAvatarResp)
+}

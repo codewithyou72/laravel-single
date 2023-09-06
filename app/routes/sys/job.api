@@ -1,0 +1,81 @@
+syntax = "v1"
+
+info(
+	title: "岗位"
+	desc: "岗位"
+	author: "Trevor"
+	email: "trevorlan@163.com"
+)
+
+import "../common.api"
+
+type (
+	Job {
+		Id       int64  `json:"id"`
+		Name     string `json:"name"`
+		Status   int64  `json:"status"`
+		OrderNum int64  `json:"orderNum"`
+	}
+	SysJobPageReq {
+		PageReq
+	}
+	SysJobPageResp {
+		List       []Job      `json:"list"`
+		Pagination Pagination `json:"pagination"`
+	}
+)
+
+type (
+	AddSysJobReq {
+		Name     string `json:"name"      validate:"min=2,max=50"           label:"岗位名称"`
+		Status   int64  `json:"status"    validate:"number,gte=0,lte=1"     label:"状态"`
+		OrderNum int64  `json:"orderNum"  validate:"number,gte=0,lte=9999"  label:"排序"`
+	}
+)
+
+type (
+	DeleteSysJobReq {
+		Id int64 `json:"id"  validate:"number,gte=1" label:"岗位id"`
+	}
+)
+
+type (
+	UpdateSysJobReq {
+		Id       int64  `json:"id"        validate:"number,gte=1"           label:"岗位id"`
+		Name     string `json:"name"      validate:"min=2,max=50"           label:"岗位名称"`
+		Status   int64  `json:"status"    validate:"number,gte=0,lte=1"     label:"状态"`
+		OrderNum int64  `json:"orderNum"  validate:"number,gte=0,lte=9999"  label:"排序"`
+	}
+)
+
+@server(
+	jwt: JwtAuth
+	group : sys/job
+	prefix : /admin/sys/job
+	middleware: PermMenuAuth
+)
+service index {
+	@doc(
+		summary: "分页岗位"
+	)
+	@handler GetSysJobPage
+	get /page (SysJobPageReq) returns (SysJobPageResp)
+
+	@doc(
+		summary: "新增岗位"
+	)
+	@handler AddSysJob
+	post /add (AddSysJobReq)
+
+	@doc(
+		summary: "删除岗位"
+	)
+	@handler DeleteSysJob
+	post /delete (DeleteSysJobReq)
+
+	@doc(
+		summary: "更新岗位"
+	)
+	@handler UpdateSysJob
+	post /update (UpdateSysJobReq)
+}

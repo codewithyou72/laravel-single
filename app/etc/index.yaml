@@ -1,0 +1,54 @@
+Name: laravel-single
+Host: 127.0.0.1
+Port: 39611
+
+Mode: dev   #开发模式 default=pro,options=dev|test|rt|pre|pro
+MaxConns: 10000  #`json:",default=10000"` // 最大并发连接数qps，默认值为 10000
+MaxBytes: 8388608   #http最大请求数
+CpuThreshold: 900   #降载阀值，默认900（90%），范围值0-1000
+Timeout: 30000
+
+#不使用nginx直接配置域名方式
+#CertFile: app/etc/tls/dev.baidu.com.pem
+#KeyFile: app/etc/tls/dev.baidu.com.key
+
+#GormCon:
+#  Datasource: root:123456@tcp(127.0.0.1:3306)/laravel-single?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+#Gorm配置步骤1
+GormCon:
+  Path: 127.0.0.1
+  Port: 3306
+  Dbname: laravel-single
+  Username: root
+  Password: "123456"
+  MaxIdleConns: 10
+  MaxOpenConns: 10
+  LogMode: dev
+  LogZap: false
+  Config: charset=utf8mb4&parseTime=True&loc=Local
+
+# Redis缓存配置
+RedisCache:
+  - Host: 127.0.0.1:6379
+    Pass:
+
+#JWT配置
+JwtAuth:
+  AccessSecret: kRZ3kA7LuB4LqOWi
+  AccessExpire: 86400
+
+#日志配置
+Verbose: true   #true|false 是否打印详细日志
+Log:
+  ServiceName: laravel-single #日志文件名称
+  Mode: console #日志方式  console|file|volume
+  TimeFormat: 2006-01-02T15:04:05.000Z07 #时间格式
+  Path: logs/gateway #日志文件路径，gomod的根目录
+  Level: error #错误级别才写入 info|error|severe
+  Compress: false #是否合并日志文件
+  KeepDays: 15 #日志保留天数
+  StackCooldownMillis: 200
+  Encoding: plain  #日志展示方式，开发选择plain，生产json default=json,options=[json,plain]
+
+PublicDir: "public"  #index.go设置对外公开的public文件夹名称、你可以根据自己需要修改这个文件夹
